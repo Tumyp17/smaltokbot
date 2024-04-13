@@ -2,6 +2,8 @@ from pydantic_settings import SettingsConfigDict, BaseSettings
 from pydantic import SecretStr
 
 
+# Uses a .env file to gain tokens
+
 class Settings(BaseSettings):
     bot_token: SecretStr
     payment_token: SecretStr

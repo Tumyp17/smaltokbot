@@ -10,28 +10,35 @@ from app.bot_data.botreply import text_messages
 from app.keyboards.inline.inline_help import add_help_inline
 from app.database import db_users
 
+# This file is used for initial user registration.
+
 router = Router()
 router.message.filter(userstate.NoUserIDFilter())
 
 
+# Creates an Aiogram States Machine state class that is used in multistep registration proccess
 class TelCode(StatesGroup):
     entering_tel = State()
     entered_code = State()
 
 
+# reacts to the cancel command, clears States Machine
 @router.message(Command('cancel'))
 async def cmd_cancel(message: Message, state: FSMContext):
     db_users.delete_user(message.from_user.id)
     await state.clear()
-    await message.answer('Действие отменено')
+    await message.answer(text_messages['cancel'])
 
 
+# Reacts to the /start command and initiates a user registration proccess
 @router.message(Command('start'))
 async def cmd_start(message: Message, state: FSMContext):
     await message.answer(text_messages['start'])
     await state.set_state(TelCode.entering_tel)
 
 
+# This handler is entered when users entered his phone number for the first time
+# Sends an SMS code to the entered telephone number.
 @router.message(F.text, TelCode.entering_tel)
 async def enter_tel(message: Message, state: FSMContext):
     await state.update_data(entered_tel=message.text)
@@ -39,7 +46,7 @@ async def enter_tel(message: Message, state: FSMContext):
     entered_tel = str(user_data['entered_tel'])
     if entered_tel.isdigit() and len(entered_tel) > 10:
         await state.set_state(TelCode.entered_code)
-        await message.answer('Введите код, полученный из смс сообщения')
+        await message.answer(text_messages['sms_code'])
         ver_code = str(random.randint(1000, 9999))
         db_users.check_and_add_user(message, ver_code)
         from config_reader import config
@@ -48,11 +55,12 @@ async def enter_tel(message: Message, state: FSMContext):
                                                                 body=ver_code, to='+' + message.text)
 #        await message.answer('TESTMODE__SMS_CODE_IS: ' + ver_code)
     else:
-        await message.answer('Вы ввели некорректный номер телефона, нажмите /start для повтора.')
+        await message.answer(text_messages['wrong_phone'])
         db_users.delete_user(message.from_user.id)
         await state.clear()
 
 
+# Handles entered code, checks if it is correct and completes the registration by adding user to database
 @router.message(F.text, TelCode.entered_code)
 async def check_code(message: Message, state: FSMContext):
     await state.update_data(entered_code=message.text)

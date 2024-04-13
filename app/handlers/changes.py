@@ -15,6 +15,9 @@ from app.functions.remove_inline_func import remove_inline
 router = Router()
 
 
+# This file is used for handling users request to change his profile data
+
+# Creates an 'Aiogram States machine' states. Used for handling multistep requests
 class NameSurnameTel(StatesGroup):
     choosing_whatto_change = State()
     entering_name = State()
@@ -23,6 +26,7 @@ class NameSurnameTel(StatesGroup):
     entered_code = State()
 
 
+# Cancels if user pressed 'cancel' by reseting all States.
 @router.callback_query(F.data == 'cancel')
 async def cmd_cancel(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
@@ -31,6 +35,7 @@ async def cmd_cancel(callback: types.CallbackQuery, state: FSMContext):
                                      reply_markup=builder.as_markup(resize_keyboard=True))
 
 
+# Sends user a message with a question: what he wants to change in his profile
 @router.callback_query(F.data == 'changes', userstate.HasUserIDFilter())
 async def cmd_change(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_text(text_messages['changes_question'],
@@ -39,6 +44,7 @@ async def cmd_change(callback: types.CallbackQuery, state: FSMContext):
     await timeout_func.timeout_callback(NameSurnameTel.choosing_whatto_change, state, callback)
 
 
+# Reads users callback update and sets Aiogram States machine state, depending on the users choice
 @router.callback_query(F.data, NameSurnameTel.choosing_whatto_change)
 async def changes_chosen(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(chosen_datato_change=callback.data)
@@ -50,7 +56,8 @@ async def changes_chosen(callback: types.CallbackQuery, state: FSMContext):
         await timeout_func.timeout_callback(NameSurnameTel.entering_name, state, callback)
     elif chosen_datato_change == 'lastname':
         await state.set_state(NameSurnameTel.entering_surname)
-        await callback.message.edit_text(text_messages['surname_request'], reply_markup=inline_cancel.builder.as_markup())
+        await callback.message.edit_text(text_messages['surname_request'],
+                                         reply_markup=inline_cancel.builder.as_markup())
         await timeout_func.timeout_callback(NameSurnameTel.entering_surname, state, callback)
     elif chosen_datato_change == 'tel':
         await callback.message.edit_text(text_messages['change_tel'], reply_markup=inline_cancel.builder.as_markup())
@@ -62,6 +69,7 @@ async def changes_chosen(callback: types.CallbackQuery, state: FSMContext):
                                          reply_markup=builder.as_markup(resize_keyboard=True))
 
 
+# Entered if user has chosen to change his name (determined by states machine)
 @router.message(F.text, NameSurnameTel.entering_name)
 async def change_name(message: Message, state: FSMContext):
     await state.update_data(entered_name=message.text)
@@ -74,6 +82,7 @@ async def change_name(message: Message, state: FSMContext):
     await state.clear()
 
 
+# Entered if user has chosen to change his lastname (determined by states machine)
 @router.message(F.text, NameSurnameTel.entering_surname)
 async def change_surname(message: Message, state: FSMContext):
     await state.update_data(entered_surname=message.text)
@@ -86,6 +95,7 @@ async def change_surname(message: Message, state: FSMContext):
     await state.clear()
 
 
+# Entered if user has chosen to change his phone number (determined by states machine)
 @router.message(F.text, NameSurnameTel.entering_tel)
 async def change_tel(message: Message, state: FSMContext):
     await state.update_data(entered_tel=message.text)
@@ -106,10 +116,12 @@ async def change_tel(message: Message, state: FSMContext):
     else:
         await state.clear()
         builder = add_help_inline()
-        await message.answer('Вы ввели некорректный номер телефона, для повторной попытки нажмите Изменить данные',
+        await message.answer(text_messages['change_phone_wrong_input'],
                              reply_markup=builder.as_markup(resize_keyboard=True))
 
 
+# Enters after user has entered his new phone number and an SMS code.
+# Checks if enterd code is correct and updates DB.
 @router.message(F.text, NameSurnameTel.entered_code)
 async def check_code(message: Message, state: FSMContext):
     await state.update_data(entered_code=message.text)
@@ -120,11 +132,11 @@ async def check_code(message: Message, state: FSMContext):
     if entered_code == ver_code:
         db_users.db.users.update_one({'user_id': message.from_user.id}, {"$set": {'tel': entered_tel}})
         builder = add_help_inline()
-        await message.answer('Ваш номер телефона изменен на: ' + entered_tel,
+        await message.answer('Your phone has been changed' + entered_tel,
                              reply_markup=builder.as_markup(resize_keyboard=True))
         await state.clear()
     else:
         builder = add_help_inline()
-        await message.answer('Вы ввели неверный код, для повторной попытки нажмите Изменить данные',
+        await message.answer(text_messages['change_phone_wrong_code'],
                              reply_markup=builder.as_markup(resize_keyboard=True))
         await state.clear()

@@ -1,6 +1,10 @@
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+
+# Creats a buttons layout for profile changes
+
+
 builder = InlineKeyboardBuilder()
 
 

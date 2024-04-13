@@ -7,6 +7,7 @@ from aiogram.fsm.context import FSMContext
 us = db.users
 
 
+# Filters out users with verified phone numbers
 class HasUserIDFilter(BaseFilter):
     async def __call__(self, message: Message) -> Union[bool, Dict[str, Any]]:
         if (us.find_one({'user_id': message.from_user.id}) is not None
@@ -16,6 +17,7 @@ class HasUserIDFilter(BaseFilter):
             return False
 
 
+# Filters out users that hasn't finished their initial registration proccess
 class NoUserIDFilter(BaseFilter):
     async def __call__(self, message: Message) -> Union[bool, Dict[str, Any]]:
         if us.find_one({'user_id': message.from_user.id}) is None:
@@ -26,6 +28,7 @@ class NoUserIDFilter(BaseFilter):
             return False
 
 
+# This filter checks users that attempted to change their phone number
 class ChangeNumFilter(BaseFilter):
     async def __call__(self, message: Message) -> Union[bool, Dict[str, Any]]:
         user_id = message.from_user.id
@@ -35,6 +38,7 @@ class ChangeNumFilter(BaseFilter):
             return False
 
 
+# This filter checks if user has a None in the 'State' field
 class NoStateFilter(BaseFilter):
     async def __call__(self, message: Message, state: FSMContext) -> Union[bool, Dict[str, Any]]:
         if await state.get_state() is None:

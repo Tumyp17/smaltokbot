@@ -7,6 +7,7 @@ from app.bot_data.botreply import text_messages
 router = Router()
 
 
+# Cancels a users request if he has pressed 'Cancel' button
 @router.callback_query(F.data == 'cancel')
 async def cmd_cancel(callback: types.CallbackQuery, state: FSMContext):
     db_users.db.users.update_one({'user_id': callback.from_user.id}, {"$set": {'state': 'verified'}})

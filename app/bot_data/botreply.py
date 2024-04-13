@@ -15,8 +15,8 @@ text_messages = {
         u'To try again, please press Top Up.',
     'wrong_phone':
         u'You have entered incorrect phone number\n'
-        u'Please, enter your phone number (no + sign, international format)\n'
-        u'To cancel press "Cancel"',
+        u'Please, enter your phone number (no + sign, international format).\n'
+        u'For initial registration press /start to retry',
     'successful_request':
         u'Your request has been registered, please wait for a call from a specialist',
     'successful_reg':
@@ -52,5 +52,14 @@ text_messages = {
     'restart':
         u'Press /start to restart. ',
     'sms_code':
-        u'Please, enter a code from SMS'
+        u'Please, enter a code from SMS',
+    'specify_request':
+        u'Please, specify the request for our assistant.',
+    'change_phone_wrong_input':
+        u'You have entered an incorrect phone number. Please try again.',
+    'change_phone_wrong_code':
+        u'You have entered a wrong code. Please try again',
+    'topup_summ':
+        u'Enter a summ in russian rubles. Minimum 100.'
+
 }

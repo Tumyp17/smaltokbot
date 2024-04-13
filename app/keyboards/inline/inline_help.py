@@ -2,6 +2,8 @@ from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
+# Creats a buttons layout for help callback
+
 def add_help_inline():
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(

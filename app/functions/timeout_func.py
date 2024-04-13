@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 
+# Cancels a users request if he hasn't sent any callback updates (if they are required to proceed) for 30 seconds.
 async def timeout_callback(current_state, state: FSMContext, callback: types.CallbackQuery):
     await asyncio.sleep(30)
     if await state.get_state() == current_state:
@@ -13,6 +14,7 @@ async def timeout_callback(current_state, state: FSMContext, callback: types.Cal
         await callback.message.edit_text(text_messages['inactivity_cancel'] + text_messages['restart'])
 
 
+# Cancels a users request if he hasn't sent any message updates (if they are required to proceed) for 30 seconds.
 async def timeout_message(current_state, state: FSMContext, message: Message):
     await asyncio.sleep(30)
     if await state.get_state() == current_state:

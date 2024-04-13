@@ -5,6 +5,8 @@ from typing import Callable, Dict, Any, Awaitable
 from datetime import datetime
 
 
+# This file is used fot outer middlware that adds all users callback updates to the MongoDB
+
 class UpdatesMiddlewareCallback(BaseMiddleware):
     async def __call__(
         self,

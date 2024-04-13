@@ -1,6 +1,8 @@
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+# Creats a general buttons layout (all at once)
+
 builder = InlineKeyboardBuilder()
 
 

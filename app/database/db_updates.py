@@ -1,11 +1,15 @@
 from pymongo import MongoClient
 from datetime import datetime
 
-client = MongoClient('localhost', 27017)
+# This file is used for adding updates from user to MongoDB
 
+# Connecting to MongoDB
+client = MongoClient('localhost', 27017)
+# Choosing the database
 db = client['gh_coffee_db']
 
 
+# Adding message update to MongoDB
 def add_update(message):
     new_update = {
         'first_name': str(message.from_user.first_name),
@@ -20,6 +24,7 @@ def add_update(message):
     db.updates.insert_one(new_update)
 
 
+# Adding callback update to MongoDB
 def add_update_callback(callback):
     new_update = {
         'first_name': str(callback.from_user.first_name),
@@ -34,6 +39,8 @@ def add_update_callback(callback):
     db.updates.insert_one(new_update)
 
 
+# This function is used to receive how much time has passed since the last update from user.
+# It is used for the timeup function and to prevent bot from handling too many updates in a short amount of time
 def get_seconds(user_id, current):
     user = None
     i = current
@@ -41,7 +48,6 @@ def get_seconds(user_id, current):
         user = db.updates.find_one({'user_id': user_id, 'message_id': int(i - 1)})
         if user is None and i == current:
             user = current - 10
-            print('entered user=current-10')
             return user
         i -= 1
     if user is not None:

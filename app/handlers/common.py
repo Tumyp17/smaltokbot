@@ -1,8 +1,6 @@
-import asyncio
 from aiogram.filters.command import Command
 from aiogram import Bot, Router, F, types
 from aiogram.types import Message
-from app.functions.delete_func import delete_message
 from app.database import db_users
 from app.keyboards.inline import inline_balance, inline_profile
 from app.bot_data.botreply import text_messages
@@ -16,44 +14,32 @@ router = Router()
 router.message.filter(HasUserIDFilter())
 
 
+# A handler that reacts to help callback
 @router.callback_query(F.data == 'help')
 async def cmd_help(callback: types.CallbackQuery):
     help_inline = add_help_inline()
     await callback.message.edit_text(text_messages['help'], reply_markup=help_inline.as_markup(resize_keyboard=True))
 
 
+# Reacts to balance callback
 @router.callback_query(F.data == 'balance')
 async def cmd_balance(callback: types.CallbackQuery):
     balance = str(db_users.get_balance(callback.from_user.id))
-    reply = 'Ваш баланс: ' + balance
+    reply = 'Your balance is: ' + balance
     await callback.message.edit_text(reply, reply_markup=inline_balance.builder.as_markup(resize_keyboard=True))
 
 
+# Reacts to profile callback
 @router.callback_query(F.data == 'profile')
 async def cmd_profile(callback: types.CallbackQuery):
-    reply = ('Ваши данные:\nИмя - ' + db_users.get_first_name(callback.from_user.id) + '\n'
-             'Фамилия - ' + db_users.get_last_name(callback.from_user.id) + '\n'
-             'Телефон - ' + db_users.get_tel(callback.from_user.id) +
-             '\n\nВышеуказанные данные были получены из вашего профиля в Telegram,\n либо добавлены вами вручную')
+    reply = ('Your profile\nName - ' + db_users.get_first_name(callback.from_user.id) + '\n'
+             'Surname - ' + db_users.get_last_name(callback.from_user.id) + '\n'
+             'Telephone - ' + db_users.get_tel(callback.from_user.id) +
+             '\n\nThe data above has been received from your Telegram profile,\n or it has been acquired from you')
     await callback.message.edit_text(reply, reply_markup=inline_profile.builder.as_markup(resize_keyboard=True))
 
 
-@router.message(Command('delete'))
-async def cmd_delete(message: Message):
-    await remove_inline(message.message_id, message.from_user.id)
-    db_users.delete_user(message.from_user.id)
-    msg = await message.reply("Ваш профиль удален.")
-    asyncio.create_task(delete_message(msg, 5))
-
-
-@router.message(Command('null'))
-async def cmd_null(message: Message):
-    await remove_inline(message.message_id, message.from_user.id)
-    db_users.topup(message.from_user.id, '0')
-    builder = add_help_inline()
-    await message.answer("Ваш баланс как Путин", reply_markup=builder.as_markup(resize_keyboard=True))
-
-
+# Reacts to /start commanc
 @router.message(F or Command('start'), NoStateFilter())
 async def cmd_start(event: Message or types.CallbackQuery):
     await remove_inline(event.message_id, event.from_user.id)

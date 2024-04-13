@@ -6,6 +6,7 @@ from aiogram import Bot
 bot = Bot(token=config.bot_token.get_secret_value())
 
 
+# Removes an inline buttons from bots message
 async def remove_inline(message_id, chat_id):
     i = message_id - 3
     while i <= message_id:
