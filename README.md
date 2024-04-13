@@ -1,4 +1,4 @@
------Welcome to my portfolio project-----
+Welcome to my portfolio project
 ___________________________
 //This is a modified copy of a real bot, made for a translation service company.//
 ___________________________
@@ -19,3 +19,6 @@ ___________________________
 You can try it out here: **https://t.me/smaltokbot** or by entering **@smaltokbot** in your Telegram application. 
 ___________________________
 About telegram: **https://telegram.org**
+___________________________
+Thank you for reading this.
+Timur Chirkov. Junior software engineer.
