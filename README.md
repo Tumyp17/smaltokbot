@@ -1,6 +1,6 @@
 Welcome to my portfolio project
 ___________________________
-//This is a modified copy of a real bot, made for a translation service company.//
+This is a modified copy of a real bot, made for a translation service company.
 ___________________________
 Features:
 1. Performing new users registration.
