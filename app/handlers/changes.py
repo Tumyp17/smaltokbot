@@ -3,7 +3,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import Router, F, types
-from twilio.rest import Client
+# from twilio.rest import Client
 from app.database import db_users
 from app.filters import userstate
 from app.bot_data.botreply import text_messages  # , config
@@ -106,10 +106,10 @@ async def change_tel(message: Message, state: FSMContext):
         ver_code = str(random.randint(1000, 9999))
         db_users.db.users.update_one({'user_id': message.from_user.id}, {"$set": {'code': ver_code}})
         await remove_inline(message.message_id, message.from_user.id)
-        from config_reader import config
-        Client(config.sid.get_secret_value(),
-               config.token.get_secret_value()).messages.create(from_='+17697570497',
-                                                                body=ver_code, to='+' + message.text)
+#        from config_reader import config
+#        Client(config.sid.get_secret_value(),
+#               config.token.get_secret_value()).messages.create(from_='+17697570497',
+#                                                                body=ver_code, to='+' + message.text)
         await message.answer(text_messages['sms_code'], reply_markup=inline_cancel.builder.as_markup())
         await message.answer('TESTMODE__SMS_CODE_IS: ' + ver_code)
         await timeout_func.timeout_message(NameSurnameTel.entered_code, state, message)

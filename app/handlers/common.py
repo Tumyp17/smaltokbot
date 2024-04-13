@@ -39,7 +39,13 @@ async def cmd_profile(callback: types.CallbackQuery):
     await callback.message.edit_text(reply, reply_markup=inline_profile.builder.as_markup(resize_keyboard=True))
 
 
-# Reacts to /start commanc
+@router.message(Command('delete'))
+async def cmd_delete(message: Message):
+    await db_users.delete_user(message.from_user.id)
+    await message.answer("Your profile has been deleted")
+
+
+# Reacts to /start command
 @router.message(F or Command('start'), NoStateFilter())
 async def cmd_start(event: Message or types.CallbackQuery):
     await remove_inline(event.message_id, event.from_user.id)

@@ -4,7 +4,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import Router, F
-from twilio.rest import Client
+# from twilio.rest import Client
 from app.filters import userstate
 from app.bot_data.botreply import text_messages
 from app.keyboards.inline.inline_help import add_help_inline
@@ -49,11 +49,12 @@ async def enter_tel(message: Message, state: FSMContext):
         await message.answer(text_messages['sms_code'])
         ver_code = str(random.randint(1000, 9999))
         db_users.check_and_add_user(message, ver_code)
-        from config_reader import config
-        Client(config.sid.get_secret_value(),
-               config.token.get_secret_value()).messages.create(from_='+17697570497',
-                                                                body=ver_code, to='+' + message.text)
-#        await message.answer('TESTMODE__SMS_CODE_IS: ' + ver_code)
+#        from config_reader import config
+#        Client(config.sid.get_secret_value(),
+#               config.token.get_secret_value()).messages.create(from_='+17697570497',
+#                                                                body=ver_code, to='+' + message.text)
+        await message.answer('TESTMODE__SMS_CODE_IS: ' + ver_code)
+        print(ver_code)
     else:
         await message.answer(text_messages['wrong_phone'])
         db_users.delete_user(message.from_user.id)
